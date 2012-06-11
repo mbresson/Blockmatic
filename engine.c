@@ -224,7 +224,7 @@ void draw_preview(Tetri *tetri) {
 	assert(s_engine.renderer != NULL);
 	assert(s_engine.blocks != NULL);
 
-	Colors color = tetri->type;
+	Colors color = (Colors)tetri->type;
 
 	SDL_Rect src_rect;
 
@@ -263,7 +263,7 @@ void draw_tetri(Tetri *tetri) {
 	assert(s_engine.renderer != NULL);
 	assert(s_engine.blocks != NULL);
 
-	Colors color = tetri->type;
+	Colors color = (Colors)tetri->type;
 
 	SDL_Rect src_rect;
 
