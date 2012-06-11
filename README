@@ -37,7 +37,7 @@ Available options:
 
 	--duration number
  		the number of milliseconds to wait before moving down a tetri
- 		default: 2000%, min: 100, max: 10000
+ 		default: 2000, min: 100, max: 10000
 
 	--font-file file.{otf,ttf}
  		the path to the font file to be used to display various informations
