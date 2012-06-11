@@ -1,0 +1,122 @@
+
+Blockmatic is a highly configurable Tetris clone written in C99.
+It requires SDL2, SDL2_TTF and SDL2_image to be linked against.
+
+Available options:
+
+	--help
+ 		list available options
+
+	--background-file file.{png,jpg,bmp}
+ 		the path to a background image
+ 		default: rgb(205,205,205)
+
+	--block-file file.{png,jpg,bmp}
+ 		the path to the blocks image
+ 		default: 'simple.png'
+
+	--block-size number
+ 		the standard size for blocks (width == height, used when computing the window's size)
+ 		default: 24 px, min: 1
+
+	--blocks-per-col number
+ 		the number of blocks per column (used when computing the window's height)
+ 		default: 20, min: 8
+
+	--blocks-per-row number
+ 		the number of blocks per row (used when computing the window's width)
+ 		default: 14, min: 8
+
+	--decrease number
+ 		the percentage of duration (ms) decrease
+ 		default: 10%, min: 0, max: 99
+
+	--delay number
+ 		the number of seconds before duration (ms) is decreased by decrease (%)
+ 		default: 60%, min: 1, max: 86400
+
+	--duration number
+ 		the number of milliseconds to wait before moving down a tetri
+ 		default: 2000%, min: 100, max: 10000
+
+	--font-file file.{otf,ttf}
+ 		the path to the font file to be used to display various informations
+ 		default: 'Cantarell-Bold.otf'
+
+	--font-size number
+ 		the size of the font, pause text will be twice this size
+ 		default: 18
+
+	--nohints
+ 		if set, no hints will be displayed (hints == time remaining until moving down)
+ 		default: hints allowed
+
+	--nokeyrepeat
+ 		if set, key repeat will be disabled
+ 		default: key repeat enabled
+
+	--nopreview
+ 		if set, the next tetrimino can't be previewed
+ 		default: preview enabled
+
+	--pausemsg string
+ 		the message to be displayed when the game is paused
+ 		default: 'PAUSE'
+
+	--restart
+ 		if set, when the game is over, a new game is started
+ 		default: no restart
+
+	--rows number
+ 		the number of rows to be randomly filled with blocks at the beginning
+ 		default: 0, min: 0, max: 20 or the user-defined number of blocks per column
+
+	--threshold number
+ 		the number of rows to be completed before duration (ms) is decreased by decrease (%)
+ 		default: 10%, min: 1, max: 1000000
+
+	--usedelay
+ 		to decide if duration (ms) must be decreased after delay (s)
+ 		default: use threshold
+
+	--window-icon file.{png,jpg,bmp}
+ 		the path to the window's icon file
+ 		default: 'icon.png'
+
+	--window-title string
+ 		the window's title
+ 		default: 'Blockmatic'
+
+Runtime control keys:
+
+	n
+		new game
+
+	escape
+		leave game
+
+	p
+		pause game
+
+	left
+		move left
+
+	right
+		move right
+
+	up
+		counter-clockwise rotation
+
+	down
+		clockwise rotation
+
+	shift + down
+		move down
+
+	space
+		drop tetri
+
+	?
+		delete last row (cheat mode)
+
+

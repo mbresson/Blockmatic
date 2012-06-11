@@ -508,7 +508,7 @@ static void print_help(void) {
 
 	printf("\t" PARAM_DURATION " number\n \
 		the number of milliseconds to wait before moving down a tetri\n \
-		default: %d%%, min: 100, max: 10000\n\n", DEFAULT_DURATION);
+		default: %d, min: 100, max: 10000\n\n", DEFAULT_DURATION);
 
 	printf("\t" PARAM_FONT_FILE " file.{otf,ttf}\n \
 		the path to the font file to be used to display various informations\n \
