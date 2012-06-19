@@ -208,6 +208,7 @@ static inline void set_undef_settings(Settings *obj) {
 }
 
 
+static void print_version(void);
 static void print_help(void);
 
 
@@ -289,6 +290,11 @@ Settings* parse_params(int argc, char **argv) {
 	// if first parameter is --help, print help
 	if(*s_argc == 2 && equals(s_argv[1], "--help")) {
 		print_help();
+
+		tmp->leave = true;
+		return tmp;
+	} else if(*s_argc == 2 && equals(s_argv[1], "--version")) {
+		print_version();
 
 		tmp->leave = true;
 		return tmp;
@@ -580,4 +586,9 @@ static void print_help(void) {
 	printf("\tspace\n\t\tdrop tetri\n\n");
 
 	printf("\t?\n\t\tdelete last row (cheat mode)\n\n");
+}
+
+
+static void print_version(void) {
+	puts(GAME_TITLE " " GAME_VERSION " by " GAME_CREATOR);
 }
