@@ -565,8 +565,8 @@ const Settings* start_engine(int argc, char **argv) {
 	if(texture_width != legal_width || texture_height != legal_height) {
 		fprintf(stderr, "Texture for '%s' is not the right size (%dx%d, should be %dx%d)!\n",
 			s_settings->block_file, texture_width, texture_height, legal_width, legal_height);
-		s_settings->leave = true;
-		return s_settings;
+		//s_settings->leave = true;
+		//return s_settings;
 	}
 
 	/*
