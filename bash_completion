@@ -1,6 +1,6 @@
 # to be moved in /etc/bash_completion.d
 
-_blockmatic() {
+_Blockmatic() {
 	local cur prev opts
 	COMPREPLY=()
 
@@ -40,4 +40,4 @@ _blockmatic() {
 	return 0
 }
 
-complete -F _blockmatic blockmatic
+complete -F _Blockmatic Blockmatic
