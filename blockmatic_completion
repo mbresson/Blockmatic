@@ -1,0 +1,49 @@
+# to be moved in /etc/bash_completion.d
+
+_blockmatic() {
+	local cur prev
+	local no_param file_param misc_param params
+	COMPREPLY=()
+
+	# current parameter
+	cur="${COMP_WORDS[COMP_CWORD]}"
+
+	# previous parameter
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+	# parameters without argument
+	no_param="--help --version --background-center --background-crop --noborder --nohints --nokeyrepeat --nopreview --restart --usedelay"
+
+	# parameters with an argument
+	file_param="--background-file --block-file --font-file --window-icon"
+	misc_param="--background-color --block-size --blocks-per-col --blocks-per-row --decrease --delay --duration --font-size --font-color --pausemsg --pause-color --rows --threshold --window-title"
+
+	params="$no_param $file_param $misc_param"
+
+	# if previous parameter requires a file name
+	file=false
+	for param in ${file_param[@]}; do
+		if [ "${param}" = ${prev} ]; then
+			file=true;
+		fi
+	done
+
+	misc=false
+	for param in ${misc_param[@]}; do
+		if [ "${param}" = ${prev} ]; then
+			misc=true;
+		fi
+	done
+
+	if $file; then
+		_filedir
+	else
+		if ! $misc; then
+			COMPREPLY=( $(compgen -W "${params}" -- ${cur}) )
+		fi
+	fi
+
+	return 0
+}
+
+complete -F _blockmatic blockmatic

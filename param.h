@@ -16,6 +16,29 @@
 #define PARAM_BACKGROUND_FILE "--background-file"
 
 /*
+ * to decide if the background picture (if stretched) must be centered when displayed
+ * default: DEFAULT_BACKGROUND_CENTER
+ * Settings member: background_center
+ */
+#define PARAM_BACKGROUND_CENTER "--background-center"
+
+/*
+ * the background color to use if no picture
+ * format: red,green,blue
+ * default: DEFAULT_BACKGROUND_RED, DEFAULT_BACKGROUND_GREEN, DEFAULT_BACKGROUND_BLUE
+ * min: 0, max: 255
+ * Settings member: background_color
+ */
+#define PARAM_BACKGROUND_COLOR "--background-color"
+
+/*
+ * to decide if the background picture must be stretched when displayed
+ * default: DEFAULT_BACKGROUND_CROP
+ * Settings member: background_crop
+ */
+#define PARAM_BACKGROUND_CROP "--background-crop"
+
+/*
  * the path to the blocks image
  * default: DEFAULT_BLOCK_FILE
  * Settings member: block_file
@@ -81,6 +104,20 @@
 #define PARAM_FONT_SIZE "--font-size"
 
 /*
+ * the text color
+ * format: red,green,blue
+ * default: DEFAULT_FONT_RED, DEFAULT_FONT_GREEN, DEFAULT_FONT_BLUE
+ * min: 0, max: 255
+ * Settings member: font_color
+ */
+#define PARAM_FONT_COLOR "--font-color"
+
+/*
+ * to display some help
+ */
+#define PARAM_HELP "--help"
+
+/*
  * to decide if hints must be displayed or not (hints == time remaining until moving down)
  * default: DEFAULT_HINTS
  * Settings member: hints
@@ -107,6 +144,15 @@
  * Settings member: pausemsg
  */
 #define PARAM_PAUSEMSG "--pausemsg"
+
+/*
+ * the color of the screen when paused
+ * format: red,green,blue
+ * default: DEFAULT_PAUSE_RED, DEFAULT_PAUSE_GREEN, DEFAULT_PAUSE_BLUE
+ * min: 0, max: 255
+ * Settings member: pause_color
+ */
+#define PARAM_PAUSE_COLOR "--pause-color"
 
 /*
  * to decide if a new game must be started in case of a game over
@@ -137,6 +183,11 @@
 #define PARAM_USEDELAY "--usedelay"
 
 /*
+ * to display informations on the version
+ */
+#define PARAM_VERSION "--version"
+
+/*
  * the path to the window's icon file
  * default: DEFAULT_WINDOW_ICON
  * Settings member: window_icon
@@ -151,6 +202,13 @@
 #define PARAM_WINDOW_TITLE "--window-title"
 
 /*
+ * create a window without border
+ * default: DEFAULT_WINDOW_NOBORDER
+ * Settings member: window_noborder
+ */
+#define PARAM_WINDOW_NOBORDER "--noborder"
+
+/*
  * the Settings struct is used to store the user's game settings
  * they can me changed with command-line parameters
  * otherwise, they get default values
@@ -161,6 +219,12 @@
 
 typedef struct {
 	char *background_file;
+	bool background_center;
+	bool background_crop;
+
+	struct {
+		int red, green, blue;
+	} background_color; // background color if no picture
 
 	char *block_file;
 	int block_size, preview_size; // preview_size cannot be set be the user!
@@ -176,12 +240,20 @@ typedef struct {
 	char *font_file;
 	int font_size;
 
+	struct {
+		int red, green, blue;
+	} font_color;
+
 	bool hints;
 
 	bool keyrepeat;
 	bool preview;
 
 	char *pausemsg;
+
+	struct {
+		int red, green, blue;
+	} pause_color;
 
 	bool restart;
 
@@ -192,6 +264,7 @@ typedef struct {
 
 	char *window_icon;
 	char *window_title;
+	bool window_noborder;
 
 	bool leave; // if set to true, exit the program
 } Settings;

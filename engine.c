@@ -67,7 +67,23 @@ void clear_screen(void) {
 	SDL_RenderClear(s_engine.renderer);
 
 	if(s_engine.background != NULL) {
-		SDL_RenderCopy(s_engine.renderer, s_engine.background, NULL, NULL);
+		if(s_settings->background_crop) {
+			int background_width, background_height;
+			SDL_QueryTexture(s_engine.background, NULL, NULL, &background_width, &background_height);
+
+			SDL_Rect dest_rect;
+			dest_rect.x = 0; dest_rect.y = 0;
+			dest_rect.w = background_width; dest_rect.h = background_height;
+
+			if(s_settings->background_center) {
+				dest_rect.x = s_engine.width / 2 - dest_rect.w / 2;
+				dest_rect.y = s_engine.height / 2 - dest_rect.h / 2;
+			}
+
+			SDL_RenderCopy(s_engine.renderer, s_engine.background, NULL, &dest_rect);
+		} else { // stretch background texture
+			SDL_RenderCopy(s_engine.renderer, s_engine.background, NULL, NULL);
+		}
 	}
 }
 
@@ -116,11 +132,17 @@ void draw_pause(void) {
 	assert(!s_settings->leave);
 	assert(s_engine.renderer != NULL);
 
-	SDL_SetRenderDrawColor(s_engine.renderer, 100, 100, 100, 255);
+	SDL_SetRenderDrawColor(s_engine.renderer,
+		(Uint8) s_settings->pause_color.red,
+		(Uint8) s_settings->pause_color.green,
+		(Uint8) s_settings->pause_color.blue, 255);
 
 	SDL_RenderFillRect(s_engine.renderer, NULL);
 
-	SDL_SetRenderDrawColor(s_engine.renderer, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, 255);
+	SDL_SetRenderDrawColor(s_engine.renderer,
+		(Uint8) s_settings->background_color.red,
+		(Uint8) s_settings->background_color.green,
+		(Uint8) s_settings->background_color.blue, 255);
 
 	// if pausemsg is empty, no need to draw it
 	if(s_engine.pause != NULL) {
@@ -142,9 +164,13 @@ void draw_percentage(int value) {
 	char string[5];
 	snprintf(string, 5, "%d%%", value);
 
-	SDL_Color white = {255, 255, 255, 0};
 
-	SDL_Surface *stext = TTF_RenderText_Blended(s_engine.font, string, white);
+	SDL_Color color = {
+		(unsigned char) s_settings->font_color.red,
+		(unsigned char) s_settings->font_color.green,
+		(unsigned char) s_settings->font_color.blue, 0};
+
+	SDL_Surface *stext = TTF_RenderText_Blended(s_engine.font, string, color);
 	if(!stext) {
 		fprintf(stderr, "Couldn't render '%s' (Blended)!\n=>\t%s\n", string, TTF_GetError());
 	} else {
@@ -163,7 +189,7 @@ void draw_percentage(int value) {
 
 
 /*
- * this function is used to know how many character are needed
+ * this function is used to compute how many characters are needed
  * to represent number in a char[]
  */
 static int count_numberstr(int number) {
@@ -196,9 +222,12 @@ void draw_statistics(int level, int rows) {
 	char string[total];
 	snprintf(string, (size_t)total, "%d (%d)", level, rows);
 
-	SDL_Color white = {255, 255, 255, 0};
+	SDL_Color color = {
+		(unsigned char) s_settings->font_color.red,
+		(unsigned char) s_settings->font_color.green,
+		(unsigned char) s_settings->font_color.blue, 0};
 
-	SDL_Surface *stext = TTF_RenderText_Blended(s_engine.font, string, white);
+	SDL_Surface *stext = TTF_RenderText_Blended(s_engine.font, string, color);
 	if(!stext) {
 		fprintf(stderr, "Couldn't render '%s' (Blended)!\n=>\t%s\n", string, TTF_GetError());
 	} else {
@@ -394,7 +423,6 @@ const bool* receive_events(void) {
 				break;
 
 			case SDLK_SPACE:
-				// for playability
 				if(event.key.repeat) {
 					if(s_settings->keyrepeat) {
 						s_events[DROP_EVENT] = true;
@@ -434,6 +462,7 @@ const bool* receive_events(void) {
 
 	return s_events;
 }
+
 
 const Settings* start_engine(int argc, char **argv) {
 	s_settings = parse_params(argc, argv);
@@ -490,7 +519,14 @@ const Settings* start_engine(int argc, char **argv) {
 	int width = s_settings->block_size * s_settings->blocks_per_row;
 	int height = s_settings->block_size * s_settings->blocks_per_col;
 
-	s_engine.window = SDL_CreateWindow(s_settings->window_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+	SDL_WindowFlags flags = 0;
+	if(s_settings->window_noborder) {
+		flags = SDL_WINDOW_BORDERLESS;
+	}
+
+	s_engine.window = SDL_CreateWindow(s_settings->window_title,
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		width, height, flags);
 	if(!s_engine.window) {
 		fprintf(stderr, "Couldn't create a %dx%d window!\n=>\t%s\n", width, height, SDL_GetError()); 
 		s_settings->leave = true;
@@ -509,7 +545,10 @@ const Settings* start_engine(int argc, char **argv) {
 	s_engine.height = height;
 
 	// set a drawing color to the renderer
-	SDL_SetRenderDrawColor(s_engine.renderer, BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, 255);
+	SDL_SetRenderDrawColor(s_engine.renderer,
+		(Uint8) s_settings->background_color.red,
+		(Uint8) s_settings->background_color.green,
+		(Uint8) s_settings->background_color.blue, 255);
 
 	// set a blendmode to the renderer
 	SDL_SetRenderDrawBlendMode(s_engine.renderer, SDL_BLENDMODE_MOD);
@@ -593,9 +632,12 @@ const Settings* start_engine(int argc, char **argv) {
 		s_settings->leave = true;
 		return s_settings;
 	} else {
-		SDL_Color white = {255, 255, 255, 0};
+		SDL_Color color = {
+			(unsigned char) s_settings->font_color.red,
+			(unsigned char) s_settings->font_color.green,
+			(unsigned char) s_settings->font_color.blue, 0};
 
-		SDL_Surface *spause = TTF_RenderUTF8_Blended(pause_font, s_settings->pausemsg, white);
+		SDL_Surface *spause = TTF_RenderUTF8_Blended(pause_font, s_settings->pausemsg, color);
 		if(!spause) {
 			fprintf(stderr, "Couldn't render '%s' (Blended)!\n=>\t%s\n", s_settings->pausemsg, TTF_GetError());
 			// no need to exit, the pausemsg will simply not be displayed

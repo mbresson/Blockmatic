@@ -77,6 +77,26 @@ static inline void set_default_settings(Settings *obj) {
 		obj->background_file = DEFAULT_BACKGROUND_FILE;
 	}
 
+	if(obj->background_center == undef) {
+		obj->background_center = DEFAULT_BACKGROUND_CENTER;
+	}
+
+	if(obj->background_crop == undef) {
+		obj->background_crop = DEFAULT_BACKGROUND_CROP;
+	}
+
+	if(obj->background_color.red == -1) {
+		obj->background_color.red = DEFAULT_BACKGROUND_RED;
+	}
+
+	if(obj->background_color.green == -1) {
+		obj->background_color.green = DEFAULT_BACKGROUND_GREEN;
+	}
+
+	if(obj->background_color.blue == -1) {
+		obj->background_color.blue = DEFAULT_BACKGROUND_BLUE;
+	}
+
 	if(obj->block_file == NULL) {
 		obj->block_file = DEFAULT_BLOCK_FILE;
 	}
@@ -120,6 +140,18 @@ static inline void set_default_settings(Settings *obj) {
 		obj->font_size = DEFAULT_FONT_SIZE;
 	}
 
+	if(obj->font_color.red == -1) {
+		obj->font_color.red = DEFAULT_FONT_RED;
+	}
+
+	if(obj->font_color.green == -1) {
+		obj->font_color.green = DEFAULT_FONT_GREEN;
+	}
+
+	if(obj->font_color.blue == -1) {
+		obj->font_color.blue = DEFAULT_FONT_BLUE;
+	}
+
 	if(obj->hints == undef) {
 		obj->hints = DEFAULT_HINTS;
 	}
@@ -134,6 +166,18 @@ static inline void set_default_settings(Settings *obj) {
 
 	if(obj->pausemsg == NULL) {
 		obj->pausemsg = DEFAULT_PAUSEMSG;
+	}
+
+	if(obj->pause_color.red == -1) {
+		obj->pause_color.red = DEFAULT_PAUSE_RED;
+	}
+
+	if(obj->pause_color.green == -1) {
+		obj->pause_color.green = DEFAULT_PAUSE_GREEN;
+	}
+
+	if(obj->pause_color.blue == -1) {
+		obj->pause_color.blue = DEFAULT_PAUSE_BLUE;
 	}
 
 	if(obj->restart == undef) {
@@ -159,6 +203,10 @@ static inline void set_default_settings(Settings *obj) {
 	if(obj->window_title == NULL) {
 		obj->window_title = DEFAULT_WINDOW_TITLE;
 	}
+
+	if(obj->window_noborder == undef) {
+		obj->window_noborder = DEFAULT_WINDOW_NOBORDER;
+	}
 }
 
 
@@ -174,6 +222,12 @@ static inline void set_undef_settings(Settings *obj) {
 	 */
 
 	obj->background_file = NULL;
+	obj->background_center = undef;
+	obj->background_crop = undef;
+
+	obj->background_color.red = -1;
+	obj->background_color.green = -1;
+	obj->background_color.blue = -1;
 
 	obj->block_file = NULL;
 	obj->block_size = -1;
@@ -189,12 +243,20 @@ static inline void set_undef_settings(Settings *obj) {
 	obj->font_file = NULL;
 	obj->font_size = -1;
 
+	obj->font_color.red = -1;
+	obj->font_color.green = -1;
+	obj->font_color.blue = -1;
+
 	obj->hints = undef;
 
 	obj->keyrepeat = undef;
 	obj->preview = undef;
 
 	obj->pausemsg = NULL;
+
+	obj->pause_color.red = -1;
+	obj->pause_color.green = -1;
+	obj->pause_color.blue = -1;
 
 	obj->restart = undef;
 
@@ -205,6 +267,7 @@ static inline void set_undef_settings(Settings *obj) {
 
 	obj->window_icon = NULL;
 	obj->window_title = NULL;
+	obj->window_noborder = undef;
 }
 
 
@@ -212,7 +275,68 @@ static void print_version(void);
 static void print_help(void);
 
 
-static inline bool check_file_parameter(int index, char **target) {
+/*
+ * this function looks for conflits or dependencies
+ * and prints warnings in stderr when needed
+ */
+static void check_to_warn(Settings *obj) {
+	assert(obj != NULL);
+
+	// if a background color and a background picture have both been set
+	if(obj->background_file != NULL &&
+		(obj->background_color.red != -1 ||
+		obj->background_color.green != -1 ||
+		obj->background_color.blue != -1)) {
+
+		fprintf(stderr, "'%s': statement with no effect (a background file has been specified!\n",
+				PARAM_BACKGROUND_COLOR);
+
+		obj->background_color.red = -1;
+		obj->background_color.green = -1;
+		obj->background_color.blue = -1;
+	}
+
+	// if background_crop is set but there is no background picture
+	if(obj->background_file == NULL && obj->background_crop != undef) {
+		fprintf(stderr, "'%s': statement with no effect (a background file must be specified)!\n",
+				PARAM_BACKGROUND_CROP);
+
+		obj->background_crop = undef;
+	}
+
+	// if background_center is set but the background picture is not cropped
+	if(obj->background_center == true && (obj->background_crop == false ||
+		(obj->background_crop == undef && !DEFAULT_BACKGROUND_CROP))) {
+
+		fprintf(stderr, "'%s': statement with no effect (background picture must be cropped ('%s'))!\n",
+			PARAM_BACKGROUND_CENTER, PARAM_BACKGROUND_CROP);
+		
+		obj->background_center = undef;
+	}
+
+	// if a delay has been set but won't be used
+	if(obj->delay != -1 && (obj->usedelay == false ||
+		(obj->usedelay == undef && !DEFAULT_USEDELAY))) {
+
+		fprintf(stderr, "'%s': statement with no effect (delay must be switched on ('%s'))!\n",
+			PARAM_DELAY, PARAM_USEDELAY);
+
+		obj->delay = -1;
+	}
+
+	// if a threshold is set but won't be used
+	if(obj->threshold != -1 && (obj->usedelay == true ||
+		(obj->usedelay == undef && DEFAULT_USEDELAY))) {
+
+		fprintf(stderr, "'%s': statement with no effect (delay must be switched off (no '%s'))!\n",
+			PARAM_THRESHOLD, PARAM_USEDELAY);
+
+		obj->threshold = -1;
+	}
+}
+
+
+static bool check_file_parameter(int index, char **target) {
 	assert(target != NULL);
 	assert(s_argc != NULL && s_argv != NULL);
 	assert(index < *s_argc);
@@ -230,6 +354,9 @@ static inline bool check_file_parameter(int index, char **target) {
 	} else if(!file_exists(s_argv[index+1])) {
 		fprintf(stderr, "'%s': file '%s' does not exist!\n", param, s_argv[index+1]);
 		return false;
+	} else if(*target != NULL) {
+		fprintf(stderr, "'%s': you cannot define it twice!\n", param);
+		return false;
 	} else {
 		*target = s_argv[index+1];
 		return true;
@@ -237,7 +364,57 @@ static inline bool check_file_parameter(int index, char **target) {
 }
 
 
-static inline bool check_numeric_parameter(int index, int *target, int min, int max) {
+/*
+ * this function reads three numeric values from the current parameter
+ * the values must be formatted as following: "red,green,blue"
+ * they cannot be lower than 0 or higher than 255
+ */
+static bool check_color_parameter(int index, int *red, int *green, int *blue) {
+	assert(red != NULL);
+	assert(green != NULL);
+	assert(blue != NULL);
+
+	const char *param = s_argv[index];
+
+	/*
+	 * check if an argument is provided
+	 * check if it suits the right format
+	 */
+
+	if(index == (*s_argc) - 1) {
+		fprintf(stderr, "'%s': you must provide an argument!\n", param);
+		return false;
+	} else {
+		const char *format = "%u,%u,%u";
+		int tmp_red, tmp_green, tmp_blue;
+
+		int result = sscanf(s_argv[index+1], format, &tmp_red, &tmp_green, &tmp_blue);
+
+		if(result == 3) {
+			if(tmp_red < 0 || tmp_red > 255 || tmp_green < 0 || tmp_green > 255 || tmp_blue < 0 || tmp_blue > 255) {
+				fprintf(stderr, "'%s': values in '%s' must not be lower than 0 or higher than 255!\n",
+					param, s_argv[index+1]);
+				return false;
+			}
+
+			if(*red != -1 || *green != -1 || *blue != -1) {
+				fprintf(stderr, "'%s': you cannot define it twice!\n", param);
+				return false;
+			}
+
+			*red = tmp_red;
+			*green = tmp_green;
+			*blue = tmp_blue;
+			return true;
+		} else {
+			fprintf(stderr, "'%s': parameter '%s' isn't correctly formatted!\n", param, s_argv[index+1]);
+			return false;
+		}
+	}
+}
+
+
+static bool check_numeric_parameter(int index, int *target, int min, int max) {
 	assert(target != NULL);
 	assert(s_argc != NULL && s_argv != NULL);
 	assert(index < *s_argc);
@@ -264,6 +441,9 @@ static inline bool check_numeric_parameter(int index, int *target, int min, int 
 		} else if(*char_ptr != '\0') {
 			fprintf(stderr, "'%s': value '%s' is not a number!\n", param, s_argv[index+1]);
 			return false;
+		} else if(*target != -1) {
+			fprintf(stderr, "'%s': you cannot define it twice!\n", param);
+			return false;
 		} else {
 			*target = (int) result;
 			return true;
@@ -287,21 +467,8 @@ Settings* parse_params(int argc, char **argv) {
 	// before parsing, every value is initialized to prevent strange errors
 	set_undef_settings(tmp);
 
-	// if first parameter is --help, print help
-	if(*s_argc == 2 && equals(s_argv[1], "--help")) {
-		print_help();
-
-		tmp->leave = true;
-		return tmp;
-	} else if(*s_argc == 2 && equals(s_argv[1], "--version")) {
-		print_version();
-
-		tmp->leave = true;
-		return tmp;
-	}
-
 	int index = 1;
-	while(index < *s_argc) {
+	while(index < *s_argc && !tmp->leave) {
 		const char *param = s_argv[index];
 
 		/*
@@ -311,10 +478,33 @@ Settings* parse_params(int argc, char **argv) {
 		 * if it's all wrong, stop, set tmp->leave to true and return
 		 */
 
-		if(equals(param, PARAM_BACKGROUND_FILE)) {
+		if(equals(param, PARAM_HELP)) {
+			print_help();
+
+			tmp->leave = true;
+
+		} else if(equals(param, PARAM_VERSION)) {
+			print_version();
+
+			tmp->leave = true;
+
+		} else if(equals(param, PARAM_BACKGROUND_FILE)) {
 			if(!check_file_parameter(index, &(tmp->background_file))) {
 				tmp->leave = true;
-				break;
+			} else {
+				index++;
+			}
+
+		} else if(equals(param, PARAM_BACKGROUND_CENTER)) {
+			tmp->background_center = true;
+
+		} else if(equals(param, PARAM_BACKGROUND_CROP)) {
+			tmp->background_crop = true;
+
+		} else if(equals(param, PARAM_BACKGROUND_COLOR)) {
+			if(!check_color_parameter(index,
+				&(tmp->background_color.red), &(tmp->background_color.green), &(tmp->background_color.blue))) {
+				tmp->leave = true;
 			} else {
 				index++;
 			}
@@ -322,7 +512,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_BLOCK_FILE)) {
 			if(!check_file_parameter(index, &(tmp->block_file))) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -330,7 +519,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_BLOCK_SIZE)) {
 			if(!check_numeric_parameter(index, &(tmp->block_size), 1, INT_MAX)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -339,7 +527,6 @@ Settings* parse_params(int argc, char **argv) {
 			int min_blocks_per_col = tmp->rows == -1 ? 8 : tmp->rows + 4;
 			if(!check_numeric_parameter(index, &(tmp->blocks_per_col), min_blocks_per_col, INT_MAX)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -347,7 +534,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_BLOCKS_PER_ROW)) {
 			if(!check_numeric_parameter(index, &(tmp->blocks_per_row), 8, INT_MAX)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -355,7 +541,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_DECREASE)) {
 			if(!check_numeric_parameter(index, &(tmp->decrease), 0, 99)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -363,18 +548,13 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_DELAY)) {
 			if(!check_numeric_parameter(index, &(tmp->delay), 1, 86400)) {
 				tmp->leave = true;
-				break;
 			} else {
-				if(tmp->usedelay == false || (tmp->usedelay == undef && !DEFAULT_USEDELAY)) {
-					printf("'%s': statement with no effect (require --usedelay).\n", param);
-				}
 				index++;
 			}
 
 		} else if(equals(param, PARAM_DURATION)) {
 			if(!check_numeric_parameter(index, &(tmp->duration), 100, 10000)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -382,7 +562,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_FONT_FILE)) {
 			if(!check_file_parameter(index, &(tmp->font_file))) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -390,7 +569,13 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_FONT_SIZE)) {
 			if(!check_numeric_parameter(index, &(tmp->font_size), 1, INT_MAX)) {
 				tmp->leave = true;
-				break;
+			} else {
+				index++;
+			}
+
+		} else if(equals(param, PARAM_FONT_COLOR)) {
+			if(!check_color_parameter(index,
+				&(tmp->font_color.red), &(tmp->font_color.green), &(tmp->font_color.blue))) {
 			} else {
 				index++;
 			}
@@ -408,13 +593,28 @@ Settings* parse_params(int argc, char **argv) {
 			if(index == (*s_argc) - 1) {
 				fprintf(stderr, "'%s': you must provide a string!\n", param);
 				tmp->leave = true;
-				break;
+			} else if(tmp->pausemsg != NULL) {
+				fprintf(stderr, "'%s': you cannot define it twice!\n", param);
+				tmp->leave = true;
 			} else {
-				tmp->pausemsg = s_argv[index+1];
-				if(equals(s_argv[index+1], "42")) {
+				if(strlen(s_argv[index+1]) == 0) {
+					tmp->pausemsg = " ";
+				} else {
+					tmp->pausemsg = s_argv[index+1];
+				}
+
+				if(equals(s_argv[index+1], CHEATMODE_STRING)) {
 					printf("Cheat mode enabled, press 'd' to delete last row of blocks.\n");
 					tmp->cheatmode = true;
 				}
+				index++;
+			}
+
+		} else if(equals(param, PARAM_PAUSE_COLOR)) {
+			if(!check_color_parameter(index,
+				&(tmp->pause_color.red), &(tmp->pause_color.green), &(tmp->pause_color.blue))) {
+				tmp->leave = true;
+			} else {
 				index++;
 			}
 
@@ -453,23 +653,28 @@ Settings* parse_params(int argc, char **argv) {
 			if(index == (*s_argc) - 1) {
 				fprintf(stderr, "'%s': you must provide a string!\n", param);
 				tmp->leave = true;
-				break;
 			} else {
 				tmp->window_title = s_argv[index+1];
 				index++;
 			}
 
+		} else if(equals(param, PARAM_WINDOW_NOBORDER)) {
+			tmp->window_noborder = true;
+
 		} else {
 			fprintf(stderr, "Invalid option '%s'!\n", param);
 			tmp->leave = true;
-			break;
 		}
 
 		index++;
 	}
 
-	// after parsing, every member left undefined is set to its default value
-	set_default_settings(tmp);
+	if(!tmp->leave) {
+		check_to_warn(tmp);
+
+		// after parsing, every member left undefined is set to its default value
+		set_default_settings(tmp);
+	}
 
 	s_argc = NULL;
 	s_argv = NULL;
@@ -481,15 +686,30 @@ Settings* parse_params(int argc, char **argv) {
 static void print_help(void) {
 	puts(GAME_TITLE " " GAME_VERSION " by " GAME_CREATOR "\n");
 
-	printf("\t--help\n \
+	printf("\t" PARAM_HELP "\n \
 		list available options\n\n");
+
+	printf("\t" PARAM_VERSION "\n \
+		display version information\n\n");
 
 	printf("\t" PARAM_BACKGROUND_FILE " file.{png,jpg,bmp}\n \
 		the path to a background image\n \
-		default: rgb(%d,%d,%d)\n\n", BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE);
+		default: %s\n\n", DEFAULT_BACKGROUND_FILE == NULL ? "no background image" : DEFAULT_BACKGROUND_FILE);
+
+	printf("\t" PARAM_BACKGROUND_CENTER "\n \
+		if set, the background image (if cropped) will be centered when displayed\n \
+		default: %s\n\n", DEFAULT_BACKGROUND_CENTER ? "background centered" : "background not centered");
+
+	printf("\t" PARAM_BACKGROUND_COLOR "\n \
+		set a background color (if no background image) in the format 'red,green,blue'\n \
+		default: %d,%d,%d, min: 0, max: 255\n\n", DEFAULT_BACKGROUND_RED, DEFAULT_BACKGROUND_GREEN, DEFAULT_BACKGROUND_BLUE);
+
+	printf("\t" PARAM_BACKGROUND_CROP "\n \
+		if set, the background image (if provided) will be cropped instead of being stretched when displayed\n \
+		default: %s\n\n", DEFAULT_BACKGROUND_CROP ? "background cropped" : "background stretched");
 
 	printf("\t" PARAM_BLOCK_FILE " file.{png,jpg,bmp}\n \
-		the path to the blocks image\n \
+		the path to the image to use to represent blocks\n \
 		default: '" DEFAULT_BLOCK_FILE "'\n\n");
 
 	printf("\t" PARAM_BLOCK_SIZE " number\n \
@@ -524,6 +744,10 @@ static void print_help(void) {
 		the size of the font, pause text will be twice this size\n \
 		default: %d\n\n", DEFAULT_FONT_SIZE);
 
+	printf("\t" PARAM_FONT_COLOR "\n \
+		set a color for the text in the format 'red,green,blue'\n \
+		default: %d,%d,%d, min: 0, max: 255\n\n", DEFAULT_FONT_RED, DEFAULT_FONT_GREEN, DEFAULT_FONT_BLUE);
+
 	printf("\t" PARAM_NOHINTS "\n \
 		if set, no hints will be displayed (hints == time remaining until moving down)\n \
 		default: %s\n\n", DEFAULT_HINTS ? "hints allowed" : "no hints");
@@ -539,6 +763,10 @@ static void print_help(void) {
 	printf("\t" PARAM_PAUSEMSG " string\n \
 		the message to be displayed when the game is paused\n \
 		default: '" DEFAULT_PAUSEMSG "'\n\n");
+
+	printf("\t" PARAM_PAUSE_COLOR "\n \
+		set a color for the screen when the game is paused in the format 'red,green,blue'\n \
+		default: %d,%d,%d, min: 0, max: 255\n\n", DEFAULT_PAUSE_RED, DEFAULT_PAUSE_GREEN, DEFAULT_PAUSE_BLUE);
 
 	printf("\t" PARAM_RESTART "\n \
 		if set, when the game is over, a new game is started\n \
@@ -564,6 +792,10 @@ static void print_help(void) {
 	printf("\t" PARAM_WINDOW_TITLE " string\n \
 		the window's title\n \
 		default: '" DEFAULT_WINDOW_TITLE "'\n\n");
+
+	printf("\t" PARAM_WINDOW_NOBORDER "\n \
+		to create a window without borders\n \
+		default: %s\n\n", DEFAULT_WINDOW_NOBORDER ? "no border" : "window with borders");
 
 	printf("Runtime control keys:\n\n");
 
