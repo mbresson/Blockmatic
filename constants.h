@@ -3,7 +3,7 @@
 #define H_CONSTANTS
 
 #define GAME_TITLE "Blockmatic"
-#define GAME_VERSION "0.3"
+#define GAME_VERSION "0.3.1"
 #define GAME_CREATOR "Bresson Matthieu"
 #define GAME_FRAMERATE 30
 

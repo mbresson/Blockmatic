@@ -282,20 +282,6 @@ static void print_help(void);
 static void check_to_warn(Settings *obj) {
 	assert(obj != NULL);
 
-	// if a background color and a background picture have both been set
-	if(obj->background_file != NULL &&
-		(obj->background_color.red != -1 ||
-		obj->background_color.green != -1 ||
-		obj->background_color.blue != -1)) {
-
-		fprintf(stderr, "'%s': statement with no effect (a background file has been specified!\n",
-				PARAM_BACKGROUND_COLOR);
-
-		obj->background_color.red = -1;
-		obj->background_color.green = -1;
-		obj->background_color.blue = -1;
-	}
-
 	// if background_crop is set but there is no background picture
 	if(obj->background_file == NULL && obj->background_crop != undef) {
 		fprintf(stderr, "'%s': statement with no effect (a background file must be specified)!\n",

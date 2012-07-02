@@ -1,6 +1,6 @@
 
 /*
- * Blockmatic.c
+ * blockmatic.c
  *
  * Copyright 2012 Bresson Matthieu <mbresson@etudiant.univ-mlv.fr>
  *
