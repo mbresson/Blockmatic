@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
 			draw_grid();
 
 			// hints about the tetri position when fallen
-			if(settings->foresee_fallen) {
+			if(settings->foresee_fallen && !pause) {
 				Tetri fallen = find_fallen_position(&tetri);
 				draw_tetri(&fallen, settings->fallen_opacity);
 			}
