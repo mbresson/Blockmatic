@@ -144,7 +144,7 @@ void draw_pause(void) {
 		(Uint8) s_settings->background_color.green,
 		(Uint8) s_settings->background_color.blue, 255);
 
-	// if pausemsg is empty, no need to draw it
+	// if pause_message is empty, no need to draw it
 	if(s_engine.pause != NULL) {
 		SDL_RenderCopy(s_engine.renderer, s_engine.pause, NULL, &(s_engine.pausedst));
 	}
@@ -287,10 +287,13 @@ void draw_preview(Tetri *tetri) {
 }
 
 
-void draw_tetri(Tetri *tetri) {
+void draw_tetri(Tetri *tetri, int opacity) {
 	assert(s_settings != NULL);
 	assert(s_engine.renderer != NULL);
 	assert(s_engine.blocks != NULL);
+	assert(opacity >= 0); assert(opacity < 256);
+
+	SDL_SetTextureAlphaMod(s_engine.blocks, (Uint8) opacity);
 
 	Colors color = (Colors)tetri->type;
 
@@ -316,6 +319,9 @@ void draw_tetri(Tetri *tetri) {
 
 		SDL_RenderCopy(s_engine.renderer, s_engine.blocks, &src_rect, &dest_rect);
 	}
+
+	// we reset the texture's opacity to its max value
+	SDL_SetTextureAlphaMod(s_engine.blocks, 255);
 }
 
 
@@ -637,10 +643,10 @@ const Settings* start_engine(int argc, char **argv) {
 			(unsigned char) s_settings->font_color.green,
 			(unsigned char) s_settings->font_color.blue, 0};
 
-		SDL_Surface *spause = TTF_RenderUTF8_Blended(pause_font, s_settings->pausemsg, color);
+		SDL_Surface *spause = TTF_RenderUTF8_Blended(pause_font, s_settings->pause_message, color);
 		if(!spause) {
-			fprintf(stderr, "Couldn't render '%s' (Blended)!\n=>\t%s\n", s_settings->pausemsg, TTF_GetError());
-			// no need to exit, the pausemsg will simply not be displayed
+			fprintf(stderr, "Couldn't render '%s' (Blended)!\n=>\t%s\n", s_settings->pause_message, TTF_GetError());
+			// no need to exit, the pause_message will simply not be displayed
 		} else {
 			s_engine.pause = SDL_CreateTextureFromSurface(s_engine.renderer, spause);
 
@@ -649,7 +655,7 @@ const Settings* start_engine(int argc, char **argv) {
 			int center_y = s_engine.height / 2;
 
 			int text_width, text_height;
-			TTF_SizeText(pause_font, s_settings->pausemsg, &text_width, &text_height);
+			TTF_SizeText(pause_font, s_settings->pause_message, &text_width, &text_height);
 
 			s_engine.pausedst.w = text_width;
 			s_engine.pausedst.h = text_height;

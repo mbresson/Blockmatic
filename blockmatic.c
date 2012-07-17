@@ -211,8 +211,15 @@ int main(int argc, char **argv) {
 
 			// care about drawing
 			clear_screen();
-			draw_tetri(&tetri);
+
+			draw_tetri(&tetri, 255);
 			draw_grid();
+
+			// hints about the tetri position when fallen
+			if(settings->foresee_fallen) {
+				Tetri fallen = find_fallen_position(&tetri);
+				draw_tetri(&fallen, settings->fallen_opacity);
+			}
 
 			if(pause) {
 				draw_pause();

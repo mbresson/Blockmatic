@@ -102,6 +102,23 @@ void fill_row(int row) {
 }
 
 
+Tetri find_fallen_position(Tetri *const tetri) {
+	assert(s_grid != NULL);
+	assert(tetri != NULL);
+
+	Tetri tmp = *tetri;
+
+	while(valid_position(&tmp)) {
+		tmp.py++;
+	}
+
+	// we've been one step too far
+	tmp.py--;
+
+	return tmp;
+}
+
+
 void free_grid(void) {
 	assert(s_grid != NULL);
 

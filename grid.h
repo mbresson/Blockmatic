@@ -34,6 +34,11 @@ void erase_grid(void);
 void fill_row(int row);
 
 /*
+ * find the position of the current tetri when it will have fallen
+ */
+Tetri find_fallen_position(Tetri *const tetri);
+
+/*
  * free malloc-ed grid
  * called by start_engine
  */

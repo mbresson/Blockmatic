@@ -90,6 +90,21 @@
 #define PARAM_DURATION "--duration"
 
 /*
+ * to decide if the position of the current tetrimino when fallen must be displayed or not
+ * default: DEFAULT_FORESEE_FALLEN
+ * Settings member: foresee_fallen
+ */
+#define PARAM_FORESEE_FALLEN "--foresee-fallen"
+
+/*
+ * the opacity of the fallen tetri if shown
+ * default: DEFAULT_FALLEN_OPACITY
+ * min: 0, max: 255
+ * Settings member: fallen_opacity
+ */
+#define PARAM_FALLEN_OPACITY "--fallen-opacity"
+
+/*
  * the path to the font file to be used to display various informations
  * default: DEFAULT_FONT_FILE
  * Settings member: font_file
@@ -140,10 +155,10 @@
 
 /*
  * the message to display when the game is paused
- * default: DEFAULT_PAUSEMSG
- * Settings member: pausemsg
+ * default: DEFAULT_PAUSE_MESSAGE
+ * Settings member: pause-message
  */
-#define PARAM_PAUSEMSG "--pausemsg"
+#define PARAM_PAUSE_MESSAGE "--pause-message"
 
 /*
  * the color of the screen when paused
@@ -249,7 +264,7 @@ typedef struct {
 	bool keyrepeat;
 	bool preview;
 
-	char *pausemsg;
+	char *pause_message;
 
 	struct {
 		int red, green, blue;
@@ -258,6 +273,9 @@ typedef struct {
 	bool restart;
 
 	int rows;
+
+	bool foresee_fallen;
+	int fallen_opacity;
 
 	int threshold;
 	bool usedelay;

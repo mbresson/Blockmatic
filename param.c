@@ -132,6 +132,14 @@ static inline void set_default_settings(Settings *obj) {
 		obj->duration = DEFAULT_DURATION;
 	}
 
+	if(obj->foresee_fallen == undef) {
+		obj->foresee_fallen = DEFAULT_FORESEE_FALLEN;
+	}
+
+	if(obj->fallen_opacity == -1) {
+		obj->fallen_opacity = DEFAULT_FALLEN_OPACITY;
+	}
+
 	if(obj->font_file == NULL) {
 		obj->font_file = DEFAULT_FONT_FILE;
 	}
@@ -164,8 +172,8 @@ static inline void set_default_settings(Settings *obj) {
 		obj->preview = DEFAULT_PREVIEW;
 	}
 
-	if(obj->pausemsg == NULL) {
-		obj->pausemsg = DEFAULT_PAUSEMSG;
+	if(obj->pause_message == NULL) {
+		obj->pause_message = DEFAULT_PAUSE_MESSAGE;
 	}
 
 	if(obj->pause_color.red == -1) {
@@ -240,6 +248,9 @@ static inline void set_undef_settings(Settings *obj) {
 	obj->delay = -1;
 	obj->duration = -1;
 
+	obj->foresee_fallen = undef;
+	obj->fallen_opacity = -1;
+
 	obj->font_file = NULL;
 	obj->font_size = -1;
 
@@ -252,7 +263,7 @@ static inline void set_undef_settings(Settings *obj) {
 	obj->keyrepeat = undef;
 	obj->preview = undef;
 
-	obj->pausemsg = NULL;
+	obj->pause_message = NULL;
 
 	obj->pause_color.red = -1;
 	obj->pause_color.green = -1;
@@ -281,6 +292,14 @@ static void print_help(void);
  */
 static void check_to_warn(Settings *obj) {
 	assert(obj != NULL);
+
+	// if fallen_opacity is set but foresee_fallen is set to false
+	if(obj->fallen_opacity != -1 && obj->foresee_fallen != true) {
+		fprintf(stderr, "'%s': statement with no effect (foresee_fallen must be switched on ('%s'))!\n",
+				PARAM_FALLEN_OPACITY, PARAM_FORESEE_FALLEN);
+
+		obj->fallen_opacity = -1;
+	}
 
 	// if background_crop is set but there is no background picture
 	if(obj->background_file == NULL && obj->background_crop != undef) {
@@ -545,6 +564,17 @@ Settings* parse_params(int argc, char **argv) {
 				index++;
 			}
 
+		} else if(equals(param, PARAM_FORESEE_FALLEN)) {
+			tmp->foresee_fallen = true;
+
+		} else if(equals(param, PARAM_FALLEN_OPACITY)) {
+			if(!check_numeric_parameter(index, &(tmp->fallen_opacity), 0, 255)) {
+				tmp->leave = true;
+				break;
+			} else {
+				index++;
+			}
+
 		} else if(equals(param, PARAM_FONT_FILE)) {
 			if(!check_file_parameter(index, &(tmp->font_file))) {
 				tmp->leave = true;
@@ -575,18 +605,18 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_NOPREVIEW)) {
 			tmp->preview = false;
 
-		} else if(equals(param, PARAM_PAUSEMSG)) {
+		} else if(equals(param, PARAM_PAUSE_MESSAGE)) {
 			if(index == (*s_argc) - 1) {
 				fprintf(stderr, "'%s': you must provide a string!\n", param);
 				tmp->leave = true;
-			} else if(tmp->pausemsg != NULL) {
+			} else if(tmp->pause_message != NULL) {
 				fprintf(stderr, "'%s': you cannot define it twice!\n", param);
 				tmp->leave = true;
 			} else {
 				if(strlen(s_argv[index+1]) == 0) {
-					tmp->pausemsg = " ";
+					tmp->pause_message = " ";
 				} else {
-					tmp->pausemsg = s_argv[index+1];
+					tmp->pause_message = s_argv[index+1];
 				}
 
 				if(equals(s_argv[index+1], CHEATMODE_STRING)) {
@@ -722,6 +752,14 @@ static void print_help(void) {
 		the number of milliseconds to wait before moving down a tetri\n \
 		default: %d, min: 100, max: 10000\n\n", DEFAULT_DURATION);
 
+	printf("\t" PARAM_FORESEE_FALLEN "\n \
+		if set, foresee the position of the tetrimino when fallen\n \
+		default: %s\n\n", DEFAULT_FORESEE_FALLEN ? "position foreseen" : "not foreseen");
+
+	printf("\t" PARAM_FALLEN_OPACITY " number\n \
+		the opacity of the fallen tetrimino if foreseen\n \
+		default: %d, min: 0, max: 255\n\n", DEFAULT_FALLEN_OPACITY);
+
 	printf("\t" PARAM_FONT_FILE " file.{otf,ttf}\n \
 		the path to the font file to be used to display various informations\n \
 		default: '" DEFAULT_FONT_FILE "'\n\n");
@@ -746,9 +784,9 @@ static void print_help(void) {
 		if set, the next tetrimino can't be previewed\n \
 		default: %s\n\n", DEFAULT_PREVIEW ? "preview enabled" : "no preview");
 
-	printf("\t" PARAM_PAUSEMSG " string\n \
+	printf("\t" PARAM_PAUSE_MESSAGE " string\n \
 		the message to be displayed when the game is paused\n \
-		default: '" DEFAULT_PAUSEMSG "'\n\n");
+		default: '" DEFAULT_PAUSE_MESSAGE "'\n\n");
 
 	printf("\t" PARAM_PAUSE_COLOR "\n \
 		set a color for the screen when the game is paused in the format 'red,green,blue'\n \

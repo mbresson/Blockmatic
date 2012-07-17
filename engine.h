@@ -71,8 +71,9 @@ void draw_statistics(int level, int rows);
 
 /*
  * draw a tetri object
+ * opacity must be comprised between 0 and 255
  */
-void draw_tetri(Tetri *tetri);
+void draw_tetri(Tetri *tetri, int opacity);
 
 /*
  * get the number of milliseconds since the engine is started
