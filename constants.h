@@ -27,7 +27,7 @@ typedef enum {
 #define DEFAULT_BACKGROUND_GREEN 205
 #define DEFAULT_BACKGROUND_BLUE 205
 
-#define DEFAULT_BLOCK_FILE "/usr/share/blockmatic/basic.png"
+#define DEFAULT_BLOCK_FILE "basic.png"
 #define DEFAULT_BLOCK_SIZE 24
 #define DEFAULT_BLOCKS_PER_COL 20
 #define DEFAULT_BLOCKS_PER_ROW 14
@@ -36,7 +36,7 @@ typedef enum {
 #define DEFAULT_DELAY 60 // seconds
 #define DEFAULT_DURATION 2000 // ms
 
-#define DEFAULT_FONT_FILE "/usr/share/blockmatic/Cantarell-Bold.otf"
+#define DEFAULT_FONT_FILE "Cantarell-Bold.otf"
 #define DEFAULT_FONT_SIZE 18
 
 #define DEFAULT_FONT_RED 255
@@ -65,7 +65,7 @@ typedef enum {
 #define DEFAULT_THRESHOLD 10
 #define DEFAULT_USEDELAY false
 
-#define DEFAULT_WINDOW_ICON "/usr/share/blockmatic/icon.png"
+#define DEFAULT_WINDOW_ICON "icon.png"
 #define DEFAULT_WINDOW_TITLE GAME_TITLE
 #define DEFAULT_WINDOW_NOBORDER false
 
