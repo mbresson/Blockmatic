@@ -5,7 +5,7 @@ LDFLAGS = `sdl2-config --libs` -lSDL2_image -lSDL2_ttf
 EXEC = blockmatic
 
 $(EXEC): $(EXEC).o param.o engine.o tetri.o grid.o
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 $(EXEC).o: $(EXEC).c
 	$(CC) $(CFLAGS) -c $^ -o $@

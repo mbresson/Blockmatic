@@ -358,15 +358,14 @@ const bool* receive_events(void) {
 	SDL_Event event;
 	bool kshift = false; // if a shift key is pressed
 
+	SDL_Keymod mods = SDL_GetModState();
+	if(mods & KMOD_SHIFT) {
+		kshift = true;
+	}
+
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
 		case SDL_KEYDOWN:
-			switch(event.key.keysym.mod) {
-			case KMOD_LSHIFT:
-			case KMOD_RSHIFT:
-				kshift = true;
-			}
-
 			switch(event.key.keysym.sym) {
 			case SDLK_ESCAPE:
 				s_events[EXIT_EVENT] = true;
