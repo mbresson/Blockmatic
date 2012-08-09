@@ -12,7 +12,7 @@ _blockmatic() {
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
 
 	# parameters without argument
-	no_param="--help --version --background-center --background-crop --noborder --nohints --nokeyrepeat --nopreview --restart --foresee-fallen --usedelay"
+	no_param="--help --version --background-center --background-crop --noborder --nohints --nokeyrepeat --nopreview --restart --foresee-fallen --usedelay --vi-like"
 
 	# parameters with an argument
 	file_param="--background-file --block-file --font-file --window-icon"

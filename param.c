@@ -204,6 +204,10 @@ static inline void set_default_settings(Settings *obj) {
 		obj->usedelay = DEFAULT_USEDELAY;
 	}
 
+	if(obj->vi_mode == undef) {
+		obj->vi_mode = DEFAULT_VI_MODE;
+	}
+
 	if(obj->window_icon == NULL) {
 		obj->window_icon = DEFAULT_WINDOW_ICON;
 	}
@@ -275,6 +279,8 @@ static inline void set_undef_settings(Settings *obj) {
 
 	obj->threshold = -1;
 	obj->usedelay = undef;
+
+	obj->vi_mode = undef;
 
 	obj->window_icon = NULL;
 	obj->window_title = NULL;
@@ -657,6 +663,9 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_USEDELAY)) {
 			tmp->usedelay = true;
 
+		} else if(equals(param, PARAM_VI_MODE)) {
+			tmp->vi_mode = true;
+
 		} else if(equals(param, PARAM_WINDOW_ICON)) {
 			if(!check_file_parameter(index, &(tmp->window_icon))) {
 				tmp->leave = true;
@@ -809,6 +818,10 @@ static void print_help(void) {
 		to decide if duration (ms) must be decreased after delay (s)\n \
 		default: %s\n\n", DEFAULT_USEDELAY ? "use delay" : "use threshold");
 
+	printf("\t" PARAM_VI_MODE "\n \
+		if set, alternative control keys will be used\n \
+		default: %s\n\n", DEFAULT_VI_MODE ? "vi-like control keys" : "normal control keys");
+
 	printf("\t" PARAM_WINDOW_ICON " file.{png,jpg,bmp}\n \
 		the path to the window's icon file\n \
 		default: '" DEFAULT_WINDOW_ICON "'\n\n");
@@ -821,23 +834,23 @@ static void print_help(void) {
 		to create a window without borders\n \
 		default: %s\n\n", DEFAULT_WINDOW_NOBORDER ? "no border" : "window with borders");
 
-	printf("Runtime control keys:\n\n");
+	printf("Control keys (normal mode / vi-like mode):\n\n");
 
-	printf("\tn\n\t\tnew game\n\n");
+	printf("\tn / enter\n\t\tnew game\n\n");
 
 	printf("\tescape\n\t\tleave game\n\n");
 
 	printf("\tp\n\t\tpause game\n\n");
 
-	printf("\tleft\n\t\tmove left\n\n");
+	printf("\tleft / s\n\t\tmove left\n\n");
 
-	printf("\tright\n\t\tmove right\n\n");
+	printf("\tright / l\n\t\tmove right\n\n");
 
-	printf("\tup\n\t\tcounter-clockwise rotation\n\n");
+	printf("\tup / j\n\t\tcounter-clockwise rotation\n\n");
 
-	printf("\tdown\n\t\tclockwise rotation\n\n");
+	printf("\tdown / f\n\t\tclockwise rotation\n\n");
 
-	printf("\tshift + down\n\t\tmove down\n\n");
+	printf("\tshift + down / k\n\t\tmove down\n\n");
 
 	printf("\tspace\n\t\tdrop tetri\n\n");
 

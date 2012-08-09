@@ -3,7 +3,7 @@
 #define H_CONSTANTS
 
 #define GAME_TITLE "Blockmatic"
-#define GAME_VERSION "0.4"
+#define GAME_VERSION "0.5"
 #define GAME_CREATOR "Bresson Matthieu"
 #define GAME_FRAMERATE 30
 
@@ -64,6 +64,8 @@ typedef enum {
 
 #define DEFAULT_THRESHOLD 10
 #define DEFAULT_USEDELAY false
+
+#define DEFAULT_VI_MODE false
 
 #define DEFAULT_WINDOW_ICON "icon.png"
 #define DEFAULT_WINDOW_TITLE GAME_TITLE

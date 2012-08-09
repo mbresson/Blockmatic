@@ -39,6 +39,11 @@
 static bool s_events[__LAST_EVENT];
 
 /*
+ * an array containing the key code for each event
+ */
+static bool s_keys[__LAST_EVENT];
+
+/*
  * this struct keeps in memory the main components of the game*
  * its window & renderer,
  * the graphics for the background and the blocks
@@ -366,90 +371,102 @@ const bool* receive_events(void) {
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
 		case SDL_KEYDOWN:
-			switch(event.key.keysym.sym) {
-			case SDLK_ESCAPE:
-				s_events[EXIT_EVENT] = true;
-				return s_events; // no need to continue polling
+				;
+				SDL_Keycode code = event.key.keysym.sym;
 
-			case SDLK_LEFT:
-				if(event.key.repeat) {
-					if(s_settings->keyrepeat) {
+				if(code == s_keys[EXIT_EVENT]) {
+					s_events[EXIT_EVENT] = true;
+					return s_events; // no need to continue polling
+				}
+
+				if(code == s_keys[LEFT_EVENT]) {
+					if(event.key.repeat) {
+						if(s_settings->keyrepeat) {
+							s_events[LEFT_EVENT] = true;
+						}
+					} else {
 						s_events[LEFT_EVENT] = true;
 					}
-				} else {
-					s_events[LEFT_EVENT] = true;
 				}
-				break;
 
-			case SDLK_RIGHT:
-				if(event.key.repeat) {
-					if(s_settings->keyrepeat) {
+				if(code == s_keys[RIGHT_EVENT]) {
+					if(event.key.repeat) {
+						if(s_settings->keyrepeat) {
+							s_events[RIGHT_EVENT] = true;
+						}
+					} else {
 						s_events[RIGHT_EVENT] = true;
 					}
-				} else {
-					s_events[RIGHT_EVENT] = true;
 				}
-				break;
 
-			case SDLK_DOWN:
-				if(event.key.repeat) {
-					if(s_settings->keyrepeat) {
-						if(kshift) {
+				if(code == s_keys[ROTATE_CLOCKWS_EVENT]) {
+					if(event.key.repeat) {
+						if(s_settings->keyrepeat) {
+							if(kshift) {
+								s_events[SHIFT_EVENT] = true;
+							} else {
+								s_events[ROTATE_CLOCKWS_EVENT] = true;
+							}
+						}
+					} else {
+						if(kshift && !s_settings->vi_mode) {
 							s_events[SHIFT_EVENT] = true;
 						} else {
 							s_events[ROTATE_CLOCKWS_EVENT] = true;
 						}
 					}
-				} else {
-					if(kshift) {
-						s_events[SHIFT_EVENT] = true;
-					} else {
-						s_events[ROTATE_CLOCKWS_EVENT] = true;
-					}
 				}
-				break;
 
-			case SDLK_UP:
-				if(event.key.repeat) {
-					if(s_settings->keyrepeat) {
-						s_events[ROTATE_COUNTERCLOCKWS_EVENT] = true;
-					}
-				} else {
-					s_events[ROTATE_COUNTERCLOCKWS_EVENT] = true;
-				}
-				break;
-
-			case SDLK_p:
-				s_events[PAUSE_EVENT] = true;
-				break;
-
-			case SDLK_n:
-				s_events[NEWGAME_EVENT] = true;
-				break;
-
-			case SDLK_SPACE:
-				if(event.key.repeat) {
-					if(s_settings->keyrepeat) {
-						s_events[DROP_EVENT] = true;
-					}
-				} else {
-					s_events[DROP_EVENT] = true;
-				}
-				break;
-
-			case SDLK_d:
-				if(s_settings->cheatmode) {
+				if(s_settings->vi_mode && code == s_keys[SHIFT_EVENT]) {
 					if(event.key.repeat) {
 						if(s_settings->keyrepeat) {
-							s_events[DELETE_EVENT] = true;
+							s_events[SHIFT_EVENT] = true;
 						}
 					} else {
-						s_events[DELETE_EVENT] = true;
+						s_events[SHIFT_EVENT] = true;
+					}
+				}
+
+				if(code == s_keys[ROTATE_COUNTERCLOCKWS_EVENT]) {
+					if(event.key.repeat) {
+						if(s_settings->keyrepeat) {
+							s_events[ROTATE_COUNTERCLOCKWS_EVENT] = true;
+						}
+					} else {
+						s_events[ROTATE_COUNTERCLOCKWS_EVENT] = true;
+					}
+				}
+
+				if(code == s_keys[PAUSE_EVENT]) {
+					s_events[PAUSE_EVENT] = true;
+				}
+
+				if(code == s_keys[NEWGAME_EVENT]) {
+					s_events[NEWGAME_EVENT] = true;
+				}
+
+				if(code == s_keys[DROP_EVENT]) {
+					if(event.key.repeat) {
+						if(s_settings->keyrepeat) {
+							s_events[DROP_EVENT] = true;
+						}
+					} else {
+						s_events[DROP_EVENT] = true;
+					}
+				}
+
+				if(code == s_keys[DELETE_EVENT]) {
+					if(s_settings->cheatmode) {
+						if(event.key.repeat) {
+							if(s_settings->keyrepeat) {
+								s_events[DELETE_EVENT] = true;
+							}
+						} else {
+							s_events[DELETE_EVENT] = true;
+						}
 					}
 				}
 				break;
-			}
-			break;
 
 		case SDL_QUIT:
 			s_events[EXIT_EVENT] = true;
@@ -666,6 +683,32 @@ const Settings* start_engine(int argc, char **argv) {
 		}
 
 		TTF_CloseFont(pause_font); pause_font = NULL;
+	}
+
+	/*
+	 * set the keycodes
+	 */
+
+	// universal key controls
+	s_keys[DELETE_EVENT] = SDLK_d;
+	s_keys[DROP_EVENT] = SDLK_SPACE;
+	s_keys[EXIT_EVENT] = SDLK_ESCAPE;
+	s_keys[PAUSE_EVENT] = SDLK_p;
+
+	if(s_settings->vi_mode) {
+		s_keys[LEFT_EVENT] = SDLK_s;
+		s_keys[RIGHT_EVENT] = SDLK_l;
+		s_keys[NEWGAME_EVENT] = SDLK_RETURN;
+		s_keys[ROTATE_CLOCKWS_EVENT] = SDLK_f;
+		s_keys[ROTATE_COUNTERCLOCKWS_EVENT] = SDLK_j;
+		s_keys[SHIFT_EVENT] = SDLK_k;
+	} else {
+		s_keys[LEFT_EVENT] = SDLK_LEFT;
+		s_keys[RIGHT_EVENT] = SDLK_RIGHT;
+		s_keys[NEWGAME_EVENT] = SDLK_n;
+		s_keys[ROTATE_CLOCKWS_EVENT] = SDLK_DOWN;
+		s_keys[ROTATE_COUNTERCLOCKWS_EVENT] = SDLK_UP;
+		s_keys[SHIFT_EVENT] = SDLK_DOWN;
 	}
 
 	return s_settings;

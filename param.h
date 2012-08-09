@@ -203,6 +203,13 @@
 #define PARAM_VERSION "--version"
 
 /*
+ * to set vi-like key codes instead of normal key codes
+ * default: DEFAULT_VI_MODE
+ * Settings member: vi_mode
+ */
+#define PARAM_VI_MODE "--vi-like"
+
+/*
  * the path to the window's icon file
  * default: DEFAULT_WINDOW_ICON
  * Settings member: window_icon
@@ -279,6 +286,8 @@ typedef struct {
 
 	int threshold;
 	bool usedelay;
+
+	bool vi_mode;
 
 	char *window_icon;
 	char *window_title;
