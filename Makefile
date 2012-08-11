@@ -34,3 +34,8 @@ install: $(EXEC)
 	mkdir /usr/share/$(EXEC)
 	cp {*.png,*.jpg,*.otf} /usr/share/$(EXEC)
 	cp $(EXEC)_completion /etc/bash_completion.d/$(EXEC)
+
+uninstall:
+	rm /usr/bin/$(EXEC)
+	rm -R /usr/share/$(EXEC)
+	rm /etc/bash_completion.d/$(EXEC)
