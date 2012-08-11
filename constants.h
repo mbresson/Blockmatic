@@ -9,7 +9,7 @@
 
 #ifndef PATH_PREFIX
 #define PATH_PREFIX "."
-#endif 
+#endif
 
 #define BACKGROUND_RED 205
 #define BACKGROUND_GREEN 205

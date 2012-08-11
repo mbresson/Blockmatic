@@ -32,7 +32,9 @@ mrproper: clean
 install: $(EXEC)
 	cp $(EXEC) /usr/bin
 	mkdir /usr/share/$(EXEC)
-	cp {*.png,*.jpg,*.otf} /usr/share/$(EXEC)
+	cp *.png /usr/share/$(EXEC)
+	cp *.jpg /usr/share/$(EXEC)
+	cp *.otf /usr/share/$(EXEC)
 	cp $(EXEC)_completion /etc/bash_completion.d/$(EXEC)
 
 uninstall:
