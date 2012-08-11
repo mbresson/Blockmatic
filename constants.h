@@ -7,6 +7,10 @@
 #define GAME_CREATOR "Bresson Matthieu"
 #define GAME_FRAMERATE 30
 
+#ifndef PATH_PREFIX
+#define PATH_PREFIX "."
+#endif 
+
 #define BACKGROUND_RED 205
 #define BACKGROUND_GREEN 205
 #define BACKGROUND_BLUE 205
@@ -27,7 +31,7 @@ typedef enum {
 #define DEFAULT_BACKGROUND_GREEN 205
 #define DEFAULT_BACKGROUND_BLUE 205
 
-#define DEFAULT_BLOCK_FILE "basic.png"
+#define DEFAULT_BLOCK_FILE PATH_PREFIX "/basic.png"
 #define DEFAULT_BLOCK_SIZE 24
 #define DEFAULT_BLOCKS_PER_COL 20
 #define DEFAULT_BLOCKS_PER_ROW 14
@@ -36,7 +40,7 @@ typedef enum {
 #define DEFAULT_DELAY 60 // seconds
 #define DEFAULT_DURATION 2000 // ms
 
-#define DEFAULT_FONT_FILE "Cantarell-Bold.otf"
+#define DEFAULT_FONT_FILE PATH_PREFIX "/Cantarell-Bold.otf"
 #define DEFAULT_FONT_SIZE 18
 
 #define DEFAULT_FONT_RED 255
@@ -67,7 +71,7 @@ typedef enum {
 
 #define DEFAULT_VI_MODE false
 
-#define DEFAULT_WINDOW_ICON "icon.png"
+#define DEFAULT_WINDOW_ICON PATH_PREFIX "/icon.png"
 #define DEFAULT_WINDOW_TITLE GAME_TITLE
 #define DEFAULT_WINDOW_NOBORDER false
 

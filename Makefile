@@ -22,8 +22,15 @@ tetri.o: tetri.c
 grid.o: grid.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-clean :
+clean:
 	rm -rf *.o
 
-mrproper : clean
+mrproper: clean
 	rm -rf $(EXEC)
+
+# to install Blockmatic, define PATH_PREFIX in constants.h as "/usr/share/blockmatic"
+install: $(EXEC)
+	cp $(EXEC) /usr/bin
+	mkdir /usr/share/$(EXEC)
+	cp {*.png,*.jpg,*.otf} /usr/share/$(EXEC)
+	cp $(EXEC)_completion /etc/bash_completion.d/$(EXEC)
