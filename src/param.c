@@ -25,6 +25,7 @@
 
 #include "debug.h"
 #include "constants.h"
+#include "defaults.h"
 
 #include <errno.h>
 #include <limits.h>

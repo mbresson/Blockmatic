@@ -1,27 +1,8 @@
 
-#ifndef H_CONSTANTS
-#define H_CONSTANTS
+#ifndef H_DEFAULTS
+#define H_DEFAULTS
 
-#define GAME_TITLE "Blockmatic"
-#define GAME_VERSION "0.5"
-#define GAME_CREATOR "Bresson Matthieu"
-#define GAME_FRAMERATE 30
-
-#ifndef PATH_PREFIX
-#define PATH_PREFIX "."
-#endif
-
-#define BACKGROUND_RED 205
-#define BACKGROUND_GREEN 205
-#define BACKGROUND_BLUE 205
-
-#define CHEATMODE_STRING "42"
-
-typedef enum {
-	undef = -1,
-	false = 0,
-	true = 1
-} bool;
+#include "paths.h"
 
 #define DEFAULT_BACKGROUND_FILE NULL
 #define DEFAULT_BACKGROUND_CENTER false
@@ -31,7 +12,7 @@ typedef enum {
 #define DEFAULT_BACKGROUND_GREEN 205
 #define DEFAULT_BACKGROUND_BLUE 205
 
-#define DEFAULT_BLOCK_FILE PATH_PREFIX "/basic.png"
+#define DEFAULT_BLOCK_FILE IMG_PREFIX "basic.png"
 #define DEFAULT_BLOCK_SIZE 24
 #define DEFAULT_BLOCKS_PER_COL 20
 #define DEFAULT_BLOCKS_PER_ROW 14
@@ -40,7 +21,7 @@ typedef enum {
 #define DEFAULT_DELAY 60 // seconds
 #define DEFAULT_DURATION 2000 // ms
 
-#define DEFAULT_FONT_FILE PATH_PREFIX "/Cantarell-Bold.otf"
+#define DEFAULT_FONT_FILE FONT_PREFIX "Cantarell-Bold.otf"
 #define DEFAULT_FONT_SIZE 18
 
 #define DEFAULT_FONT_RED 255
@@ -71,7 +52,7 @@ typedef enum {
 
 #define DEFAULT_VI_MODE false
 
-#define DEFAULT_WINDOW_ICON PATH_PREFIX "/icon.png"
+#define DEFAULT_WINDOW_ICON IMG_PREFIX "icon.png"
 #define DEFAULT_WINDOW_TITLE GAME_TITLE
 #define DEFAULT_WINDOW_NOBORDER false
 
