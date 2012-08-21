@@ -15,7 +15,6 @@ $(EXEC): $(OBJS)
 
 clean:
 	rm $(OBJS)
-	rmdir obj
 
 mrproper: clean
 	rm -rf bin/$(EXEC)
