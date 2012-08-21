@@ -14,11 +14,10 @@ $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm $(OBJS)
+	rm -f $(OBJS)
 
 mrproper: clean
-	rm -rf bin/$(EXEC)
-	rmdir bin
+	rm -rf bin
 
 # to install Blockmatic, define PATH_PREFIX in constants.h as "/usr/share/blockmatic"
 install: bin/$(EXEC)

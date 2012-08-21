@@ -555,7 +555,7 @@ const Settings* start_engine(int argc, char **argv) {
 		return s_settings;
 	}
 
-	s_engine.renderer = SDL_CreateRenderer(s_engine.window, -1, SDL_RENDERER_ACCELERATED);
+	s_engine.renderer = SDL_CreateRenderer(s_engine.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if(!s_engine.renderer) {
 		fprintf(stderr, "Couldn't create a renderer for %dx%d window!\n=>\t%s\n", width, height, SDL_GetError());
 		s_settings->leave = true;
