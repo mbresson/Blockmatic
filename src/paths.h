@@ -2,11 +2,11 @@
 #ifndef H_PATHS
 #define H_PATHS
 
-#ifndef PATH_PREFIX
-#define PATH_PREFIX "../"
+#ifndef PATH
+#define PATH "../"
 #endif
 
-#define IMG_PREFIX PATH_PREFIX "img/"
-#define FONT_PREFIX PATH_PREFIX "font/"
+#define IMG_PREFIX PATH "img/"
+#define FONT_PREFIX PATH "font/"
 
 #endif

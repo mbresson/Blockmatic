@@ -19,7 +19,7 @@ clean:
 mrproper: clean
 	rm -rf bin
 
-# to install Blockmatic, define PATH_PREFIX in constants.h as "/usr/share/blockmatic"
+# to install Blockmatic, define PATH in constants.h as "/usr/share/blockmatic"
 install: bin/$(EXEC)
 	cp bin/$(EXEC) /usr/bin
 	mkdir /usr/share/$(EXEC)

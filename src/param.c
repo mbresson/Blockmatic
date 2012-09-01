@@ -577,7 +577,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_FALLEN_OPACITY)) {
 			if(!check_numeric_parameter(index, &(tmp->fallen_opacity), 0, 255)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -599,6 +598,7 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_FONT_COLOR)) {
 			if(!check_color_parameter(index,
 				&(tmp->font_color.red), &(tmp->font_color.green), &(tmp->font_color.blue))) {
+				tmp->leave = true;
 			} else {
 				index++;
 			}
@@ -648,7 +648,6 @@ Settings* parse_params(int argc, char **argv) {
 			int max_rows = (tmp->blocks_per_col == -1 ? DEFAULT_BLOCKS_PER_COL : tmp->blocks_per_col) - 4;
 			if(!check_numeric_parameter(index, &(tmp->rows), 0, max_rows)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -656,7 +655,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_THRESHOLD)) {
 			if(!check_numeric_parameter(index, &(tmp->threshold), 1, 1000000)) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -670,7 +668,6 @@ Settings* parse_params(int argc, char **argv) {
 		} else if(equals(param, PARAM_WINDOW_ICON)) {
 			if(!check_file_parameter(index, &(tmp->window_icon))) {
 				tmp->leave = true;
-				break;
 			} else {
 				index++;
 			}
@@ -686,10 +683,6 @@ Settings* parse_params(int argc, char **argv) {
 
 		} else if(equals(param, PARAM_WINDOW_NOBORDER)) {
 			tmp->window_noborder = true;
-
-		} else {
-			fprintf(stderr, "Invalid option '%s'!\n", param);
-			tmp->leave = true;
 		}
 
 		index++;

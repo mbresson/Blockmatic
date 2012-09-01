@@ -5,6 +5,4 @@
 //#define NDEBUG
 #include <assert.h>
 
-#define STRINGIZE(val) #val
-
 #endif

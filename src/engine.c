@@ -486,56 +486,28 @@ const bool* receive_events(void) {
 }
 
 
-const Settings* start_engine(int argc, char **argv) {
-	s_settings = parse_params(argc, argv);
-	assert(s_settings != NULL);
-
-	if(s_settings->leave) {
-		return s_settings;
-	}
-
-	/*
-	 * init random-ness, required for random tetriminos
-	 */
-
-	srand((unsigned int) time(NULL));
-
-	/*
-	 * allocate the whole grid
-	 * check if it's all right
-	 */
-	
-	if(!init_grid(s_settings->blocks_per_col, s_settings->blocks_per_row)) {
-		s_settings->leave = true;
-		return s_settings;
-	}
-
-	/*
-	 * initialize SDL, SDL_image, SDL_TTF
-	 */
-
+static bool start_sdl(void) {
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
 		fprintf(stderr," Couldn't initialize SDL2!\n=>\t%s\n", SDL_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
 	if(IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) == 0) {
 		fprintf(stderr, "Couldn't initialize SDL2 image!\n=>\t%s\n", IMG_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
 	if(TTF_Init() != 0) {
 		fprintf(stderr, "Couldn't initialize SDL2 ttf!\n=>\t%s\n", TTF_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
-	/*
-	 * create main window, then create main window's renderer
-	 */
+	return true;
+}
 
+
+static bool create_window(void) {
+	assert(s_settings != NULL);
 	assert(s_settings->window_title != NULL);
 
 	int width = s_settings->block_size * s_settings->blocks_per_row;
@@ -551,20 +523,26 @@ const Settings* start_engine(int argc, char **argv) {
 		width, height, flags);
 	if(!s_engine.window) {
 		fprintf(stderr, "Couldn't create a %dx%d window!\n=>\t%s\n", width, height, SDL_GetError()); 
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
-	s_engine.renderer = SDL_CreateRenderer(s_engine.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	Uint32 renderer_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
+
+	s_engine.renderer = SDL_CreateRenderer(s_engine.window, -1, renderer_flags);
 	if(!s_engine.renderer) {
 		fprintf(stderr, "Couldn't create a renderer for %dx%d window!\n=>\t%s\n", width, height, SDL_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
-	// we store width and height in s_engine
 	s_engine.width = width;
 	s_engine.height = height;
+
+	return true;
+}
+
+
+static void tune_renderer(void) {
+	assert(s_engine.renderer != NULL);
 
 	// set a drawing color to the renderer
 	SDL_SetRenderDrawColor(s_engine.renderer,
@@ -574,6 +552,11 @@ const Settings* start_engine(int argc, char **argv) {
 
 	// set a blendmode to the renderer
 	SDL_SetRenderDrawBlendMode(s_engine.renderer, SDL_BLENDMODE_MOD);
+}
+
+
+static bool load_resources(void) {
+	assert(s_settings != NULL);
 
 	/*
 	 * load the icon file
@@ -614,8 +597,7 @@ const Settings* start_engine(int argc, char **argv) {
 	s_engine.blocks = IMG_LoadTexture(s_engine.renderer, s_settings->block_file);
 	if(!s_engine.blocks) {
 		fprintf(stderr, "Couldn't load image file '%s'!\n=>\t%s\n", s_settings->block_file, IMG_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
 	int legal_width = s_settings->block_size * __LAST_COLOR;
@@ -639,8 +621,7 @@ const Settings* start_engine(int argc, char **argv) {
 	if(!s_engine.font) {
 		fprintf(stderr, "Couldn't load font file '%s' (%d px)!\n=>\t%s\n",
 			s_settings->font_file, s_settings->font_size, TTF_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	}
 
 	/*
@@ -651,8 +632,7 @@ const Settings* start_engine(int argc, char **argv) {
 	if(!pause_font) {
 		fprintf(stderr, "Couldn't load font file '%s' (%d px)!\n=>\t%s\n",
 			s_settings->font_file, s_settings->font_size, TTF_GetError());
-		s_settings->leave = true;
-		return s_settings;
+		return false;
 	} else {
 		SDL_Color color = {
 			(unsigned char) s_settings->font_color.red,
@@ -660,6 +640,7 @@ const Settings* start_engine(int argc, char **argv) {
 			(unsigned char) s_settings->font_color.blue, 0};
 
 		SDL_Surface *spause = TTF_RenderUTF8_Blended(pause_font, s_settings->pause_message, color);
+
 		if(!spause) {
 			fprintf(stderr, "Couldn't render '%s' (Blended)!\n=>\t%s\n", s_settings->pause_message, TTF_GetError());
 			// no need to exit, the pause_message will simply not be displayed
@@ -683,6 +664,63 @@ const Settings* start_engine(int argc, char **argv) {
 		}
 
 		TTF_CloseFont(pause_font); pause_font = NULL;
+	}
+
+	return true;
+}
+
+
+const Settings* start_engine(int argc, char **argv) {
+	s_settings = parse_params(argc, argv);
+	assert(s_settings != NULL);
+
+	if(s_settings->leave) {
+		return s_settings;
+	}
+
+	/*
+	 * init random-ness, required for random tetriminos
+	 */
+
+	srand((unsigned int) time(NULL));
+
+	/*
+	 * allocate the whole grid
+	 * check if it's all right
+	 */
+	
+	if(!init_grid(s_settings->blocks_per_col, s_settings->blocks_per_row)) {
+		s_settings->leave = true;
+		return s_settings;
+	}
+
+	/*
+	 * initialize SDL, SDL_image, SDL_TTF
+	 */
+
+	if(!start_sdl()) {
+		s_settings->leave = true;
+		return s_settings;
+	}
+
+	/*
+	 * create main window, then create main window's renderer
+	 */
+
+	if(!create_window()) {
+		s_settings->leave = true;
+		return s_settings;
+	}
+
+	tune_renderer();
+
+	/*
+	 * load all resources
+	 */
+
+	if(!load_resources()) {
+		s_settings->leave = true;
+		return s_settings;
 	}
 
 	/*
