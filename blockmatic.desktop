@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Wesnoth
+Comment=A highly configurable Tetris clone
+Icon=blockmatic
+Exec=blockmatic
+Categories=Game;
+
