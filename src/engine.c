@@ -651,14 +651,10 @@ static bool load_resources(void) {
 			int center_x = s_engine.width / 2;
 			int center_y = s_engine.height / 2;
 
-			int text_width, text_height;
-			TTF_SizeText(pause_font, s_settings->pause_message, &text_width, &text_height);
+			SDL_QueryTexture(s_engine.pause, NULL, NULL, &(s_engine.pausedst.w), &(s_engine.pausedst.h));
 
-			s_engine.pausedst.w = text_width;
-			s_engine.pausedst.h = text_height;
-
-			s_engine.pausedst.x = center_x - text_width/2;
-			s_engine.pausedst.y = center_y - text_height/2;
+			s_engine.pausedst.x = center_x - s_engine.pausedst.w / 2;
+			s_engine.pausedst.y = center_y - s_engine.pausedst.h / 2;
 
 			SDL_FreeSurface(spause);
 		}
