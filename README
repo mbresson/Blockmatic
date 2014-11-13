@@ -20,5 +20,5 @@ I created all the .png images for the game using Inkscape. You can do What The F
 		==      LIBRARIES     ==
 		========================
 
-SDL2, SDL2_TTF and SDL2_image are under the zlib license and I'd like to thanks its creators and its maintainers.
+SDL2, SDL2_TTF and SDL2_image are under the MIT license and I'd like to thanks its creators and its maintainers.
 Learn more at http://www.libsdl.org/
